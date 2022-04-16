@@ -9,9 +9,11 @@ license = "MPL-2.0"
 edition = "2021"
 
 [dependencies]
-iced = { version = "0.4.2" }
+#iced = { version = "0.4.2" }
 oxipng = "6.0.1"
 globset = "0.4.9"
+bytesize = "1.1.0"
+eta = "0.2.2"
 
 [dev-dependencies]
 
