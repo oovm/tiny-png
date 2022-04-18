@@ -9,12 +9,18 @@ license = "MPL-2.0"
 edition = "2021"
 
 [dependencies]
-#iced = { version = "0.4.2" }
 oxipng = "6.0.1"
 globset = "0.4.9"
 bytesize = "1.1.0"
 eta = "0.2.2"
 walkdir = "2.3.2"
+
+[dependencies.iced]
+version = "0.4.2"
+#git = "https://github.com/iced-rs/iced"
+#rev = "370fa14"
+#default-features = false
+features = ["tokio", "default_system_font", "palette", "pure"]
 
 [dev-dependencies]
 
