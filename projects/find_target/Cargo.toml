@@ -1,25 +1,16 @@
 [package]
-name = "tiny-png"
+name = "find-target"
 version = "0.0.0"
 authors = ["Aster <192607617@qq.com>"]
-description = "..."
+description = "Find target file"
 repository = "..."
 readme = "Readme.md"
 license = "MPL-2.0"
 edition = "2021"
 
 [dependencies]
-oxipng = "6.0.1"
-globset = "0.4.9"
-bytesize = "1.1.0"
-eta = "0.2.2"
-walkdir = "2.3.2"
 
 [dev-dependencies]
 
 [features]
 default = []
-
-[package.metadata.wee]
-t = "cargo test"
-p = "cargo publish --allow-dirty"
