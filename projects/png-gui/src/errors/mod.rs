@@ -1,15 +1,23 @@
+pub use std::io::Error as IoError;
+use std::{
+    error::Error,
+    fmt::{Debug, Display, Formatter},
+};
+
 use oxipng::PngError;
 
-#[derive(Debug, Clone)]
+mod for_std;
+pub type TinyResult<T = ()> = Result<T, TinyError>;
+
+#[derive(Debug)]
 pub enum TinyError {
+    IoError(IoError),
     FormatError(String),
     TimedOut,
     ImageOptimized,
     ChunkError(String),
     UnknownError,
 }
-
-pub type Result<T> = std::result::Result<T, TinyError>;
 
 impl From<PngError> for TinyError {
     fn from(error: PngError) -> Self {
@@ -23,6 +31,21 @@ impl From<PngError> for TinyError {
             PngError::ChunkMissing(e) => TinyError::ChunkError(e.to_string()),
             PngError::Other(e) => TinyError::ChunkError(e.to_string()),
             _ => panic!("Unsolved error {}", error),
+        }
+    }
+}
+
+impl Display for TinyError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        Debug::fmt(self, f)
+    }
+}
+
+impl Error for TinyError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            TinyError::IoError(e) => Some(e),
+            _ => None,
         }
     }
 }

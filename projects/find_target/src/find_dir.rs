@@ -4,10 +4,8 @@ use super::*;
 ///
 /// # Arguments
 ///
-/// * `start`:
-/// * `name`:
-///
-/// returns: Result<PathBuf, Error>
+/// * `start`: The starting directory for searching
+/// * `name`: Target directory name
 ///
 /// # Examples
 ///
@@ -19,24 +17,25 @@ pub fn find_directory(start: &Path, name: &str) -> Result<PathBuf> {
     let mut here = normed.as_path();
     while let Some(dir) = here.parent() {
         let path = here.join(name);
-        if path.exists() && path.is_dir() {
-            return Ok(path);
+        if path.exists() {
+            return match path.is_dir() {
+                true => Ok(path),
+                false => Err(Error::from_raw_os_error(22)),
+            };
         }
         else {
             here = dir;
         }
     }
-    Err(Error::from_raw_os_error(10006))
+    Err(Error::from_raw_os_error(20))
 }
 
 /// find_directory_or_create
 ///
 /// # Arguments
 ///
-/// * `start`:
-/// * `name`:
-///
-/// returns: Result<PathBuf, Error>
+/// * `start`: The starting directory for searching
+/// * `name`: Target directory name
 ///
 /// # Examples
 ///

@@ -4,8 +4,11 @@ use oxipng::{optimize_from_memory, Options};
 
 use crate::errors::TinyError;
 
-pub use self::errors::Result;
+pub use self::errors::TinyResult;
 
+mod cache;
+#[cfg(feature = "clap")]
+mod cli;
 mod errors;
 
 fn main() {
@@ -33,7 +36,7 @@ pub struct ImageBuffer {
     reduce: f64,
 }
 
-pub fn optimize_png(png: &[u8]) -> Result<ImageBuffer> {
+pub fn optimize_png(png: &[u8]) -> TinyResult<ImageBuffer> {
     let mut opts = Options { ..Options::default() };
     let image = optimize_from_memory(png, &opts)?;
     let before = ByteSize::b(png.len() as u64);

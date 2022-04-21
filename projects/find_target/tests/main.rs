@@ -1,6 +1,6 @@
-use std::path::PathBuf;
+use std::{env::current_exe, path::PathBuf};
 
-use find_target::find_directory;
+use find_target::{find_directory, find_directory_or_create};
 
 #[test]
 fn ready() {
@@ -8,7 +8,13 @@ fn ready() {
 }
 
 #[test]
-fn test() {
-    let path = PathBuf::from("cargo.toml");
-    println!("{:?}", find_directory(&path, "target"))
+fn test() -> std::io::Result<()> {
+    println!("{:?}", find_directory(&current_exe()?, "target")?);
+    Ok(())
+}
+
+#[test]
+fn test_ext() -> std::io::Result<()> {
+    println!("{:?}", find_directory_or_create(&current_exe()?, "target")?);
+    Ok(())
 }
