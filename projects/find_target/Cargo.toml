@@ -2,7 +2,7 @@
 name = "find-target"
 version = "0.0.0"
 authors = ["Aster <192607617@qq.com>"]
-description = "Find target file"
+description = "Find target directory"
 repository = "..."
 readme = "Readme.md"
 license = "MPL-2.0"

@@ -1,7 +1,21 @@
 use super::*;
 
-pub fn find_dir(start: &Path, name: &str) -> std::io::Result<PathBuf> {
-    let normed = if start.is_dir() { start.canonicalize()?.join(name) } else { start.canonicalize()? };
+/// find_directory
+///
+/// # Arguments
+///
+/// * `start`:
+/// * `name`:
+///
+/// returns: Result<PathBuf, Error>
+///
+/// # Examples
+///
+/// ```
+/// use find_target::find_directory;
+/// ```
+pub fn find_directory(start: &Path, name: &str) -> Result<PathBuf> {
+    let normed = ensure_file(start, name)?;
     let mut here = normed.as_path();
     while let Some(dir) = here.parent() {
         let path = here.join(name);
@@ -15,17 +29,26 @@ pub fn find_dir(start: &Path, name: &str) -> std::io::Result<PathBuf> {
     Err(Error::from_raw_os_error(10006))
 }
 
-pub fn find_dir_or_create(start: &Path, name: &str) -> std::io::Result<PathBuf> {
-    match find_dir(start, name) {
+/// find_directory_or_create
+///
+/// # Arguments
+///
+/// * `start`:
+/// * `name`:
+///
+/// returns: Result<PathBuf, Error>
+///
+/// # Examples
+///
+/// ```
+/// find_target::find_directory_or_create;
+/// ```
+pub fn find_directory_or_create(start: &Path, name: &str) -> Result<PathBuf> {
+    match find_directory(start, name) {
         Ok(o) => return Ok(o),
         Err(_) => {}
     }
-    let dir = ensure_dir()
-}
-
-
-#[test]
-fn test() {
-    let path = PathBuf::from("cargo.toml");
-    println!("{:?}", find_dir(&path, "target"))
+    let dir = ensure_directory(start)?.join(name);
+    create_dir_all(&dir)?;
+    Ok(dir)
 }
