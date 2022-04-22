@@ -18,10 +18,11 @@ globset = "0.4.9"
 bytesize = "1.1.0"
 eta = "0.2.2"
 walkdir = "2.3.2"
+twox-hash = "1.6.3"
 
 [dependencies.clap]
 version = "4.0.26"
-optional = true
+#optional = true
 
 [dependencies.find-target]
 #version = "0.1.0"
@@ -30,4 +31,4 @@ path = "../find_target"
 [dev-dependencies]
 
 [features]
-default = ["clap"]
+default = []
