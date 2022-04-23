@@ -1,5 +1,5 @@
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     env::current_exe,
     fmt::Debug,
     fs::File,
@@ -8,21 +8,21 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use async_walkdir::{DirEntry, WalkDir};
+use futures::StreamExt;
 use twox_hash::XxHash64;
-use walkdir::WalkDir;
 
 use find_target::find_directory_or_create;
 
-use crate::TinyResult;
+use crate::{
+    utils::{hash_file, optimize_png},
+    TinyResult,
+};
 
 pub struct TinyWorkspace {
     workspace: PathBuf,
-    files: BTreeMap<u64, TinyCache>,
-}
-
-#[derive(Debug)]
-pub struct TinyCache {
-    hash: u64,
+    write: bool,
+    files: BTreeSet<u64>,
 }
 
 impl Drop for TinyWorkspace {
@@ -53,32 +53,42 @@ impl TinyWorkspace {
 }
 
 impl TinyWorkspace {
-    pub fn optimize_pngs(&self) -> TinyResult {
-        for entry in WalkDir::new(&self.workspace).follow_links(true) {
-            let path = match entry {
-                Ok(o) => {
-                    if !o.path().is_file() {
-                        continue;
-                    }
-                    match o.path().file_name().and_then(|v| v.to_str()) {
-                        Some(s) if s.ends_with(".png") => {}
-                        _ => continue,
-                    }
-                    o.into_path()
-                }
-                Err(e) => {
-                    log::error!("{e}");
-                    continue;
-                }
+    pub async fn check_all_pngs(&mut self) -> TinyResult {
+        let mut entries = WalkDir::new(&self.workspace);
+        loop {
+            let path = match entries.next().await {
+                Some(out) => match continue_search(out) {
+                    Some(path) => path,
+                    None => continue,
+                },
+                None => break,
             };
-
             println!("{}", path.display());
-            // if path.ends_with(".png") {
-            //     println!("{}", path.display());
-            // }
         }
         Ok(())
     }
+    pub fn optimize_png(&mut self, path: &Path) -> TinyResult {
+        let bytes = std::fs::read(path)?;
+        let hash = match optimize_png(&bytes) {
+            Ok(o) => hash_file(&o.output),
+            Err(_) => hash_file(&bytes),
+        };
+    }
+}
+
+fn continue_search(r: Result<DirEntry, std::io::Error>) -> Option<PathBuf> {
+    let path = match r {
+        Ok(o) => o.path(),
+        Err(e) => {
+            log::error!("{e}");
+            return None;
+        }
+    };
+    if !path.is_file() {
+        return None;
+    }
+    let name = path.file_name()?.to_str()?;
+    if name.ends_with(".png") { Some(path) } else { None }
 }
 
 fn db_path() -> TinyResult<PathBuf> {
@@ -86,28 +96,10 @@ fn db_path() -> TinyResult<PathBuf> {
     Ok(dir.join("tiny-png.db"))
 }
 
-#[test]
-fn target() -> TinyResult {
+#[tokio::test]
+async fn target() -> TinyResult {
     let mut ws = TinyWorkspace::initialize(PathBuf::from("D:\\Python\\tiny-png\\projects\\png-gui"));
-    ws.optimize_pngs().unwrap();
-    let hash = TinyCache::hash_file(&PathBuf::from("iphone.test.png"))?;
-    println!("{:#016X}", hash);
+    ws.check_all_pngs().await.unwrap();
+    // println!("{:#016X}", hash);
     Ok(())
-}
-
-impl TinyCache {
-    pub fn hash_file(path: &Path) -> TinyResult<u64> {
-        let input = File::open(path)?;
-        let mut reader = BufReader::new(input);
-        let mut hasher: XxHash64 = BuildHasherDefault::<XxHash64>::default().build_hasher();
-        let mut buffer = [0; 1024];
-        loop {
-            let count = reader.read(&mut buffer)?;
-            if count == 0 {
-                break;
-            }
-            hasher.write(&buffer[..count])
-        }
-        Ok(hasher.finish())
-    }
 }

@@ -4,7 +4,7 @@ pub use self::errors::TinyResult;
 
 mod cli;
 mod errors;
-mod utils;
+pub mod utils;
 mod workspace;
 
 fn calculate_square(number: usize) -> usize {
