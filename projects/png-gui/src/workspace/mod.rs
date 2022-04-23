@@ -9,13 +9,14 @@ use std::{
 };
 
 use twox_hash::XxHash64;
+use walkdir::WalkDir;
 
 use find_target::find_directory_or_create;
 
 use crate::TinyResult;
 
 pub struct TinyWorkspace {
-    current: PathBuf,
+    workspace: PathBuf,
     files: BTreeMap<u64, TinyCache>,
 }
 
@@ -33,22 +34,49 @@ impl Drop for TinyWorkspace {
 }
 
 impl TinyWorkspace {
-    pub fn initialize(workspace: PathBuf) {
-        let mut out = TinyWorkspace { current: workspace, files: Default::default() };
+    pub fn initialize(workspace: PathBuf) -> Self {
+        let mut out = TinyWorkspace { workspace, files: Default::default() };
         match out.load_database() {
             Ok(_) => {}
             Err(_) => {}
         }
+        out
     }
-
     fn load_database(&mut self) -> TinyResult<PathBuf> {
         let db = db_path()?;
         Ok(db)
     }
-
     fn on_drop(&self) -> TinyResult {
         let _ = db_path()?;
+        Ok(())
+    }
+}
 
+impl TinyWorkspace {
+    pub fn optimize_pngs(&self) -> TinyResult {
+        for entry in WalkDir::new(&self.workspace).follow_links(true) {
+            let path = match entry {
+                Ok(o) => {
+                    if !o.path().is_file() {
+                        continue;
+                    }
+                    match o.path().file_name().and_then(|v| v.to_str()) {
+                        Some(s) if s.ends_with(".png") => {}
+                        _ => continue,
+                    }
+                    o.into_path()
+                }
+                Err(e) => {
+                    log::error!("{e}");
+                    continue;
+                }
+            };
+
+            println!("{}", path.display());
+            // if path.ends_with(".png") {
+            //     println!("{}", path.display());
+            // }
+        }
         Ok(())
     }
 }
@@ -60,7 +88,8 @@ fn db_path() -> TinyResult<PathBuf> {
 
 #[test]
 fn target() -> TinyResult {
-    TinyWorkspace::initialize(PathBuf::from("../"));
+    let mut ws = TinyWorkspace::initialize(PathBuf::from("D:\\Python\\tiny-png\\projects\\png-gui"));
+    ws.optimize_pngs().unwrap();
     let hash = TinyCache::hash_file(&PathBuf::from("iphone.test.png"))?;
     println!("{:#016X}", hash);
     Ok(())

@@ -19,6 +19,7 @@ bytesize = "1.1.0"
 eta = "0.2.2"
 walkdir = "2.3.2"
 twox-hash = "1.6.3"
+log = "0.4.17"
 
 [dependencies.clap]
 version = "4.0.26"

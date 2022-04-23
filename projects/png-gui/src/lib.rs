@@ -2,10 +2,10 @@ use eta::{Eta, TimeAcc};
 
 pub use self::errors::TinyResult;
 
-mod cache;
 mod cli;
 mod errors;
 mod utils;
+mod workspace;
 
 fn calculate_square(number: usize) -> usize {
     number * number

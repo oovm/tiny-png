@@ -5,13 +5,13 @@ use std::{
 };
 
 use oxipng::PngError;
-
 mod for_std;
+mod for_walkdir;
 pub type TinyResult<T = ()> = Result<T, TinyError>;
 
 #[derive(Debug)]
 pub enum TinyError {
-    IoError(IoError),
+    IoError(String),
     FormatError(String),
     TimedOut,
     ImageOptimized,
@@ -41,11 +41,4 @@ impl Display for TinyError {
     }
 }
 
-impl Error for TinyError {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
-        match self {
-            TinyError::IoError(e) => Some(e),
-            _ => None,
-        }
-    }
-}
+impl Error for TinyError {}
