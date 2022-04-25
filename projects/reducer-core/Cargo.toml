@@ -1,5 +1,5 @@
 [package]
-name = "tiny-png"
+name = "image-reducer"
 version = "0.0.0"
 authors = ["Aster <192607617@qq.com>"]
 description = "..."
@@ -7,10 +7,6 @@ repository = "..."
 readme = "Readme.md"
 license = "MPL-2.0"
 edition = "2021"
-
-[[bin]]
-name = "tiny-png"
-path = "src/cli/mod.rs"
 
 [dependencies]
 oxipng = "6.0.1"

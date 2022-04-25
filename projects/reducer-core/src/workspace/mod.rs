@@ -1,9 +1,7 @@
 use std::{
     collections::BTreeSet,
     env::current_exe,
-    fmt::Debug,
     fs::{read, write},
-    io::Read,
     path::{Path, PathBuf},
 };
 

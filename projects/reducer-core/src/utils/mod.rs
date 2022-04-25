@@ -18,7 +18,7 @@ pub struct ImageBuffer {
 }
 
 pub fn optimize_png(png: &[u8]) -> TinyResult<ImageBuffer> {
-    let mut opts = Options { ..Options::default() };
+    let opts = Options { ..Options::default() };
     let image = optimize_from_memory(png, &opts)?;
     let before = ByteSize::b(png.len() as u64);
     let after = ByteSize::b(image.len() as u64);

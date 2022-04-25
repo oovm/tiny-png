@@ -2,7 +2,7 @@
 resolver = "2"
 members = ["projects/*"]
 default-members = [
-    "projects/png-gui",
+    "projects/reducer-core",
 ]
 exclude = [
     "projects/.DS_Store",

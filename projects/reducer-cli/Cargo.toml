@@ -1,0 +1,25 @@
+[package]
+name = "tiny-png"
+version = "0.0.0"
+authors = ["Aster <192607617@qq.com>"]
+description = "..."
+repository = "..."
+readme = "Readme.md"
+license = "MPL-2.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.22.0", features = ["full"] }
+
+[dependencies.clap]
+version = "4.0.26"
+features = ["derive"]
+
+[dependencies.image-reducer]
+#version = "0.1.0"
+path = "../reducer-core"
+
+[dev-dependencies]
+
+[features]
+default = []
