@@ -1,16 +1,14 @@
 use std::{
-    collections::{BTreeMap, BTreeSet},
+    collections::BTreeSet,
     env::current_exe,
     fmt::Debug,
-    fs::File,
-    hash::{BuildHasher, BuildHasherDefault, Hasher},
-    io::{BufReader, Read},
+    fs::{read, write},
+    io::Read,
     path::{Path, PathBuf},
 };
 
 use async_walkdir::{DirEntry, WalkDir};
 use futures::StreamExt;
-use twox_hash::XxHash64;
 
 use find_target::find_directory_or_create;
 
@@ -21,7 +19,7 @@ use crate::{
 
 pub struct TinyWorkspace {
     workspace: PathBuf,
-    write: bool,
+    writable: bool,
     files: BTreeSet<u64>,
 }
 
@@ -34,8 +32,8 @@ impl Drop for TinyWorkspace {
 }
 
 impl TinyWorkspace {
-    pub fn initialize(workspace: PathBuf) -> Self {
-        let mut out = TinyWorkspace { workspace, files: Default::default() };
+    pub fn initialize(workspace: PathBuf, writable: bool) -> Self {
+        let mut out = TinyWorkspace { workspace, writable, files: Default::default() };
         match out.load_database() {
             Ok(_) => {}
             Err(_) => {}
@@ -63,16 +61,32 @@ impl TinyWorkspace {
                 },
                 None => break,
             };
-            println!("{}", path.display());
+            if let Err(e) = self.optimize_png(&path) {
+                log::error!("{e}")
+            }
         }
         Ok(())
     }
     pub fn optimize_png(&mut self, path: &Path) -> TinyResult {
-        let bytes = std::fs::read(path)?;
+        let bytes = read(path)?;
+        let hash = hash_file(&bytes);
+        if self.files.contains(&hash) {
+            log::info!("Skip Optimized \n{}", path.display());
+            return Ok(());
+        }
         let hash = match optimize_png(&bytes) {
-            Ok(o) => hash_file(&o.output),
+            Ok(o) => {
+                log::info!("{} => {} ({:+.2}%)\n{}", o.before, o.after, o.reduce, path.display());
+                hash_file(&o.output)
+            }
             Err(_) => hash_file(&bytes),
         };
+
+        if self.writable {
+            write(path, bytes)?;
+            self.files.insert(hash);
+        }
+        Ok(())
     }
 }
 
@@ -94,12 +108,4 @@ fn continue_search(r: Result<DirEntry, std::io::Error>) -> Option<PathBuf> {
 fn db_path() -> TinyResult<PathBuf> {
     let dir = find_directory_or_create(&current_exe()?, "target")?;
     Ok(dir.join("tiny-png.db"))
-}
-
-#[tokio::test]
-async fn target() -> TinyResult {
-    let mut ws = TinyWorkspace::initialize(PathBuf::from("D:\\Python\\tiny-png\\projects\\png-gui"));
-    ws.check_all_pngs().await.unwrap();
-    // println!("{:#016X}", hash);
-    Ok(())
 }

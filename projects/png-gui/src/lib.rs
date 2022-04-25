@@ -1,6 +1,6 @@
 use eta::{Eta, TimeAcc};
 
-pub use self::errors::TinyResult;
+pub use self::{errors::TinyResult, workspace::TinyWorkspace};
 
 mod cli;
 mod errors;
