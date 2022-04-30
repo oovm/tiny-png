@@ -3,6 +3,7 @@ resolver = "2"
 members = ["projects/*"]
 default-members = [
     "projects/reducer-core",
+    "projects/reducer-cli"
 ]
 exclude = [
     "projects/.DS_Store",

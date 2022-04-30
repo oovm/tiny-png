@@ -1,6 +1,6 @@
 [package]
 name = "find-target"
-version = "0.0.0"
+version = "0.1.0"
 authors = ["Aster <192607617@qq.com>"]
 description = "Find target directory"
 repository = "https://github.com/oovm/tiny-png"

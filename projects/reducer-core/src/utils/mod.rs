@@ -1,14 +1,16 @@
-use crate::{errors::TinyError, TinyResult};
+use std::{
+    hash::{BuildHasher, BuildHasherDefault, Hasher},
+    io::Write,
+};
+
 use bytesize::ByteSize;
 use chrono::Local;
 use env_logger::fmt::Formatter;
 use log::{LevelFilter, Record};
 use oxipng::{optimize_from_memory, Options};
-use std::{
-    hash::{BuildHasher, BuildHasherDefault, Hasher},
-    io::Write,
-};
 use twox_hash::XxHash64;
+
+use crate::{errors::TinyError, TinyResult};
 
 pub struct ImageBuffer {
     pub output: Vec<u8>,
@@ -36,7 +38,7 @@ pub fn is_fully_optimized(original_size: usize, optimized_size: usize, opts: &Op
 pub fn calc_reduce(before: &[u8], after: &[u8]) -> f64 {
     let before = before.len() as f64;
     let after = after.len() as f64;
-    (before - after) / (before * -100.0)
+    100.0 * (after - before) / before
 }
 
 pub fn hash_file(image: &[u8]) -> u64 {
@@ -45,17 +47,17 @@ pub fn hash_file(image: &[u8]) -> u64 {
     hasher.finish()
 }
 
-pub fn logger() {
+pub fn logger(level: LevelFilter) {
     let _ = env_logger::builder()
         .format_module_path(false)
         .format(log_writter)
         .filter(Some("oxipng"), LevelFilter::Off)
-        .filter_level(LevelFilter::Trace)
-        // .is_test(false)
+        .filter_level(level)
+        // .is_test(cfg!(debug_assertions))
         .try_init();
 }
 
-fn log_writter(w: &mut Formatter, record: &Record) -> std::io::Result<()> {
+pub fn log_writter(w: &mut Formatter, record: &Record) -> std::io::Result<()> {
     let logs = format!("[{} {}] {}", record.level(), Local::now(), record.args());
     for (i, line) in logs.lines().enumerate() {
         if i != 0 {

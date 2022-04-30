@@ -7,45 +7,28 @@ use std::{
 
 use async_walkdir::{DirEntry, WalkDir};
 use futures::StreamExt;
+use log::LevelFilter;
 
 use find_target::find_directory_or_create;
 
 use crate::{
-    utils::{hash_file, optimize_png},
+    utils::{hash_file, logger, optimize_png},
     TinyResult,
 };
+
+mod config;
+
+pub struct TinyConfig {
+    pub writable: bool,
+    pub database: bool,
+    pub log_level: LevelFilter,
+}
 
 pub struct TinyWorkspace {
     workspace: PathBuf,
     writable: bool,
+    database: PathBuf,
     files: BTreeSet<u64>,
-}
-
-impl Drop for TinyWorkspace {
-    fn drop(&mut self) {
-        if let Err(e) = self.on_drop() {
-            eprintln!("{}", e)
-        }
-    }
-}
-
-impl TinyWorkspace {
-    pub fn initialize(workspace: PathBuf, writable: bool) -> Self {
-        let mut out = TinyWorkspace { workspace, writable, files: Default::default() };
-        match out.load_database() {
-            Ok(_) => {}
-            Err(_) => {}
-        }
-        out
-    }
-    fn load_database(&mut self) -> TinyResult<PathBuf> {
-        let db = db_path()?;
-        Ok(db)
-    }
-    fn on_drop(&self) -> TinyResult {
-        let _ = db_path()?;
-        Ok(())
-    }
 }
 
 impl TinyWorkspace {
@@ -101,9 +84,4 @@ fn continue_search(r: Result<DirEntry, std::io::Error>) -> Option<PathBuf> {
     }
     let name = path.file_name()?.to_str()?;
     if name.ends_with(".png") { Some(path) } else { None }
-}
-
-fn db_path() -> TinyResult<PathBuf> {
-    let dir = find_directory_or_create(&current_exe()?, "target")?;
-    Ok(dir.join("tiny-png.db"))
 }

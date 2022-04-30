@@ -1,0 +1,7 @@
+{
+    "private": true,
+    "scripts": {
+        "i": "cargo install --path .",
+        "p": "cargo publish --allow-dirty"
+    }
+}
