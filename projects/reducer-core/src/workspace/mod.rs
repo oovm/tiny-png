@@ -6,9 +6,11 @@ use std::{
 };
 
 use async_walkdir::{DirEntry, WalkDir};
+use bytesize::ByteSize;
 use futures::StreamExt;
 use log::LevelFilter;
 
+use colored::Colorize;
 use find_target::find_directory_or_create;
 
 use crate::{
@@ -28,6 +30,7 @@ pub struct TinyWorkspace {
     workspace: PathBuf,
     writable: bool,
     database: PathBuf,
+    reduced: u64,
     files: BTreeSet<u64>,
 }
 
@@ -46,6 +49,8 @@ impl TinyWorkspace {
                 log::error!("{e}")
             }
         }
+        let reduced = ByteSize::b(self.reduced);
+        log::info!("Total reduce {} ", reduced);
         Ok(())
     }
     pub fn optimize_png(&mut self, path: &Path) -> TinyResult {
@@ -57,12 +62,13 @@ impl TinyWorkspace {
         }
         let hash = match optimize_png(&bytes) {
             Ok(o) => {
-                log::info!("{} => {} ({:+.2}%)\n{}", o.before, o.after, o.reduce, path.display());
+                self.reduced += o.before.0 - o.after.0;
+                let reduce = format!("({:+.2}%)", o.reduce).green();
+                log::info!("{} => {} {reduce}\n{}", o.before, o.after, path.display());
                 hash_file(&o.output)
             }
             Err(_) => hash_file(&bytes),
         };
-
         if self.writable {
             write(path, bytes)?;
             self.files.insert(hash);

@@ -29,8 +29,13 @@ impl TinyConfig {
     pub fn initialize(&mut self, workspace: PathBuf) -> TinyResult<TinyWorkspace> {
         logger(self.log_level);
         log::info!("Workspace initialized\n{}", workspace.display());
-        let mut out =
-            TinyWorkspace { workspace, writable: false, database: TinyConfig::database()?, files: Default::default() };
+        let mut out = TinyWorkspace {
+            workspace,
+            writable: false,
+            database: TinyConfig::database()?,
+            reduced: Default::default(),
+            files: Default::default(),
+        };
         out.load_database()?;
         Ok(out)
     }

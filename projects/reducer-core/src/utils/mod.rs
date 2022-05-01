@@ -6,9 +6,11 @@ use std::{
 use bytesize::ByteSize;
 use chrono::Local;
 use env_logger::fmt::Formatter;
-use log::{LevelFilter, Record};
+use log::{Level, LevelFilter, Record};
 use oxipng::{optimize_from_memory, Options};
 use twox_hash::XxHash64;
+
+use colored::Colorize;
 
 use crate::{errors::TinyError, TinyResult};
 
@@ -58,7 +60,14 @@ pub fn logger(level: LevelFilter) {
 }
 
 pub fn log_writter(w: &mut Formatter, record: &Record) -> std::io::Result<()> {
-    let logs = format!("[{} {}] {}", record.level(), Local::now(), record.args());
+    let header = match record.level() {
+        Level::Error => "Error".red(),
+        Level::Warn => "Warn ".yellow(),
+        Level::Info => "Info ".green(),
+        Level::Debug => "Debug".green(),
+        Level::Trace => "Trace".green(),
+    };
+    let logs = format!("[{header}{}] {}", Local::now().format("%Y-%d-%m %H:%M:%S"), record.args());
     for (i, line) in logs.lines().enumerate() {
         if i != 0 {
             w.write(b"\n")?;
