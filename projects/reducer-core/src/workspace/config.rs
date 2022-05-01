@@ -34,6 +34,7 @@ impl TinyConfig {
             writable: false,
             database: TinyConfig::database()?,
             reduced: Default::default(),
+            start: SystemTime::now(),
             files: Default::default(),
         };
         out.load_database()?;

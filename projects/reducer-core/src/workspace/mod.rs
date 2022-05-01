@@ -1,14 +1,14 @@
+use async_walkdir::{DirEntry, WalkDir};
+use bytesize::ByteSize;
+use futures::StreamExt;
+use log::LevelFilter;
 use std::{
     collections::BTreeSet,
     env::current_exe,
     fs::{read, write},
     path::{Path, PathBuf},
+    time::SystemTime,
 };
-
-use async_walkdir::{DirEntry, WalkDir};
-use bytesize::ByteSize;
-use futures::StreamExt;
-use log::LevelFilter;
 
 use colored::Colorize;
 use find_target::find_directory_or_create;
@@ -31,6 +31,7 @@ pub struct TinyWorkspace {
     writable: bool,
     database: PathBuf,
     reduced: u64,
+    start: SystemTime,
     files: BTreeSet<u64>,
 }
 
@@ -50,7 +51,8 @@ impl TinyWorkspace {
             }
         }
         let reduced = ByteSize::b(self.reduced);
-        log::info!("Total reduce {} ", reduced);
+        let timing = SystemTime::now().duration_since(self.start)?;
+        log::info!("Reduce {} in {:?}", reduced, timing);
         Ok(())
     }
     pub fn optimize_png(&mut self, path: &Path) -> TinyResult {
