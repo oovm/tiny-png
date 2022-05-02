@@ -8,7 +8,7 @@ use image_reducer::{TinyConfig, TinyResult};
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    /// Number of times to greet
+    /// Whether to perform overwrite image files
     #[arg(short, long, default_value_t = false)]
     execute: bool,
 }

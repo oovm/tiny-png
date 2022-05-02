@@ -1,14 +1,15 @@
+use std::{
+    collections::BTreeSet,
+    env::current_exe,
+    fs::{read, remove_file, write},
+    path::{Path, PathBuf},
+    time::SystemTime,
+};
+
 use async_walkdir::{DirEntry, WalkDir};
 use bytesize::ByteSize;
 use futures::StreamExt;
 use log::LevelFilter;
-use std::{
-    collections::BTreeSet,
-    env::current_exe,
-    fs::{read, write},
-    path::{Path, PathBuf},
-    time::SystemTime,
-};
 
 use colored::Colorize;
 use find_target::find_directory_or_create;
@@ -62,20 +63,37 @@ impl TinyWorkspace {
             log::info!("Skip Optimized \n{}", path.display());
             return Ok(());
         }
-        let hash = match optimize_png(&bytes) {
+        match optimize_png(&bytes) {
             Ok(o) => {
                 self.reduced += o.before.0 - o.after.0;
                 let reduce = format!("({:+.2}%)", o.reduce).green();
-                log::info!("{} => {} {reduce}\n{}", o.before, o.after, path.display());
-                hash_file(&o.output)
+                let file = self.relative_path(&path);
+                if self.writable {
+                    let overwrite = "(overwrite)".bold();
+                    log::info!("{} => {} {reduce}\n{} {overwrite}", o.before, o.after, file.display());
+                    if path.exists() {
+                        remove_file(path)?;
+                    }
+                    // write(path, bytes)?;
+                    self.files.insert(hash_file(&o.output));
+                }
+                else {
+                    log::info!("{} => {} {reduce}\n{}", o.before, o.after, file.display());
+                }
             }
-            Err(_) => hash_file(&bytes),
+            Err(_) => {
+                if self.writable {
+                    self.files.insert(hash_file(&bytes));
+                }
+            }
         };
-        if self.writable {
-            write(path, bytes)?;
-            self.files.insert(hash);
-        }
         Ok(())
+    }
+    fn relative_path(&self, target: &Path) -> PathBuf {
+        match pathdiff::diff_paths(target, &self.workspace) {
+            Some(s) => s,
+            None => target.to_path_buf(),
+        }
     }
 }
 
