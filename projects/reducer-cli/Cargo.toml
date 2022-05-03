@@ -1,9 +1,9 @@
 [package]
 name = "tiny-png"
-version = "0.0.0"
+version = "0.1.0"
 authors = ["Aster <192607617@qq.com>"]
-description = "..."
-repository = "..."
+description = "Multi-threaded, concurrent image size optimizer"
+repository = "https://github.com/oovm/tiny-png"
 readme = "Readme.md"
 license = "MPL-2.0"
 edition = "2021"
@@ -16,7 +16,7 @@ version = "4.0.26"
 features = ["derive"]
 
 [dependencies.image-reducer]
-#version = "0.1.0"
+version = "0.1.1"
 path = "../reducer-core"
 
 [dev-dependencies]

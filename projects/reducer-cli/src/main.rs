@@ -8,7 +8,7 @@ use image_reducer::{TinyConfig, TinyResult};
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 pub struct Args {
-    /// Whether to perform overwrite image files
+    /// Whether to overwrite image files
     #[arg(short, long, default_value_t = false)]
     execute: bool,
     #[command(subcommand)]
