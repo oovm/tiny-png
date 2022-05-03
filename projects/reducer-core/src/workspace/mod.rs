@@ -1,7 +1,7 @@
 use std::{
     collections::BTreeSet,
     env::current_exe,
-    fs::{read, remove_file, write},
+    fs::{read, write},
     path::{Path, PathBuf},
     time::SystemTime,
 };
@@ -71,10 +71,7 @@ impl TinyWorkspace {
                 if self.writable {
                     let overwrite = "(overwrite)".bold();
                     log::info!("{} => {} {reduce}\n{} {overwrite}", o.before, o.after, file.display());
-                    if path.exists() {
-                        remove_file(path)?;
-                    }
-                    // write(path, bytes)?;
+                    write(path, &o.output)?;
                     self.files.insert(hash_file(&o.output));
                 }
                 else {

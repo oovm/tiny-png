@@ -1,8 +1,8 @@
 [package]
 name = "image-reducer"
-version = "0.0.0"
+version = "0.1.1"
 authors = ["Aster <192607617@qq.com>"]
-description = "..."
+description = "Reduce image size by quantization"
 repository = "https://github.com/oovm/tiny-png"
 documentation = "https://docs.rs/image-reducer"
 readme = "Readme.md"
