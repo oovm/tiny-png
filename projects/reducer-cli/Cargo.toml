@@ -21,5 +21,8 @@ path = "../reducer-core"
 
 [dev-dependencies]
 
+[target.'cfg(windows)'.build-dependencies]
+winres = "0.1"
+
 [features]
 default = []
