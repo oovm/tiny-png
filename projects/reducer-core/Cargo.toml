@@ -18,15 +18,13 @@ async-walkdir = "0.2.0"
 twox-hash = "1.6.3"
 log = "0.4.17"
 futures = "0.3.25"
-env_logger = "0.9.3"
+env_logger = "0.10.0"
 chrono = "0.4.23"
 bincode = { version = "2.0.0-rc.2", features = ["serde"] }
 pathdiff = "0.2.1"
 colored = "2.0.0"
-imagequant = "4.0"
-
-[dependencies.find-target]
-version = "0.1.0"
+imagequant = "4.0.4"
+find-target= "0.1.0"
 #path = "../find_target"
 
 [dev-dependencies]
