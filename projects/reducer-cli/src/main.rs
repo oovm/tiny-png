@@ -12,7 +12,7 @@ pub struct Args {
     #[arg(short, long, default_value_t = false)]
     execute: bool,
     #[command(subcommand)]
-    command: ArgSubs,
+    command: Option<ArgSubs>,
 }
 
 #[derive(Subcommand, Debug)]

@@ -5,12 +5,11 @@ use std::{
 
 use bytesize::ByteSize;
 use chrono::Local;
+use colored::Colorize;
 use env_logger::fmt::Formatter;
 use log::{Level, LevelFilter, Record};
 use oxipng::{optimize_from_memory, Options};
 use twox_hash::XxHash64;
-
-use colored::Colorize;
 
 use crate::{errors::TinyError, TinyResult};
 
@@ -22,7 +21,10 @@ pub struct ImageBuffer {
 }
 
 pub fn optimize_png(png: &[u8]) -> TinyResult<ImageBuffer> {
-    let opts = Options { ..Options::default() };
+    let opts = Options {
+        bit_depth_reduction: true,
+        ..Options::default()
+    };
     let image = optimize_from_memory(png, &opts)?;
     let before = ByteSize::b(png.len() as u64);
     let after = ByteSize::b(image.len() as u64);
