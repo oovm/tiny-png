@@ -5,12 +5,14 @@ authors = ["Aster <192607617@qq.com>"]
 description = "Reduce image size by quantization"
 repository = "https://github.com/oovm/tiny-png"
 documentation = "https://docs.rs/image-reducer"
+keywords = ["image", "quantization"]
 readme = "Readme.md"
 license = "MPL-2.0"
 edition = "2021"
 
 [dependencies]
-oxipng = "6.0.1"
+imagequant = "4.0.4"
+oxipng = "7.0.0"
 globset = "0.4.9"
 bytesize = "1.1.0"
 eta = "0.2.2"
@@ -23,9 +25,12 @@ chrono = "0.4.23"
 bincode = { version = "2.0.0-rc.2", features = ["serde"] }
 pathdiff = "0.2.1"
 colored = "2.0.0"
-imagequant = "4.0.4"
-find-target= "0.1.0"
+find-target = "0.1.1"
 #path = "../find_target"
+
+[dependencies.diagnostic-quick]
+version = "0.3.6"
+features = ["imagequant"]
 
 [dev-dependencies]
 
